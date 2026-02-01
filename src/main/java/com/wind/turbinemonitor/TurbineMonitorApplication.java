@@ -1,0 +1,13 @@
+package com.wind.turbinemonitor;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+@SpringBootApplication
+@EnableScheduling
+public class TurbineMonitorApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(TurbineMonitorApplication.class, args);
+    }
+}
