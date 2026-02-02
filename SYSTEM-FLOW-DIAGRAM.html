@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wind Turbine Monitor - System Flow Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        
+        .section {
+            margin-bottom: 60px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        .diagram-container {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        .table-box {
+            fill: #4CAF50;
+            stroke: #2E7D32;
+            stroke-width: 2;
+        }
+        
+        .table-text {
+            fill: white;
+            font-size: 14px;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+        
+        .table-field {
+            fill: #E8F5E9;
+            stroke: #4CAF50;
+            stroke-width: 1;
+        }
+        
+        .table-field-text {
+            fill: #2E7D32;
+            font-size: 11px;
+        }
+        
+        .service-box {
+            fill: #2196F3;
+            stroke: #1565C0;
+            stroke-width: 2;
+        }
+        
+        .service-text {
+            fill: white;
+            font-size: 13px;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+        
+        .controller-box {
+            fill: #FF9800;
+            stroke: #E65100;
+            stroke-width: 2;
+        }
+        
+        .controller-text {
+            fill: white;
+            font-size: 12px;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+        
+        .scheduler-box {
+            fill: #9C27B0;
+            stroke: #6A1B9A;
+            stroke-width: 2;
+        }
+        
+        .scheduler-text {
+            fill: white;
+            font-size: 12px;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+        
+        .arrow {
+            stroke: #333;
+            stroke-width: 2;
+            fill: none;
+            marker-end: url(#arrowhead);
+        }
+        
+        .arrow-label {
+            fill: #666;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .concept-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .concept-box h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .concept-box ul {
+            margin-left: 20px;
+        }
+        
+        .concept-box li {
+            margin: 8px 0;
+        }
+        
+        .table-info {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .table-info h4 {
+            color: #2E7D32;
+            margin-bottom: 10px;
+        }
+        
+        .table-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table-info th, .table-info td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #C8E6C9;
+        }
+        
+        .table-info th {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .flow-step {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .flow-step::before {
+            content: "→";
+            position: absolute;
+            left: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .flow-step:first-child::before {
+            content: "";
+        }
+        
+        .flow-step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .toc {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+        }
+        
+        .toc h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .toc ul {
+            list-style: none;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌬️ Wind Turbine Health Monitoring System</h1>
+        <p class="subtitle">Complete System Flow Diagram & Architecture Documentation</p>
+        
+        <div class="toc">
+            <h3>📑 Table of Contents</h3>
+            <ul>
+                <li><a href="#database-schema">1. Database Schema & Tables</a></li>
+                <li><a href="#data-flow">2. Data Flow Architecture</a></li>
+                <li><a href="#services">3. Service Layer Architecture</a></li>
+                <li><a href="#schedulers">4. Scheduled Tasks & Automation</a></li>
+                <li><a href="#api-endpoints">5. API Endpoints & Controllers</a></li>
+                <li><a href="#concepts">6. Key Concepts & Implementations</a></li>
+                <li><a href="#batch-processing">7. Batch Processing Flow</a></li>
+                <li><a href="#aggregation">8. Aggregation Process</a></li>
+            </ul>
+        </div>
+        
+        <!-- Database Schema Section -->
+        <div class="section" id="database-schema">
+            <h2>1. Database Schema & Tables</h2>
+            
+            <div class="diagram-container">
+                <svg width="100%" height="600" viewBox="0 0 1200 600">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#333" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- Farms Table -->
+                    <rect x="50" y="50" width="200" height="150" class="table-box" rx="5"/>
+                    <text x="150" y="75" class="table-text">FARMS</text>
+                    <rect x="60" y="85" width="180" height="25" class="table-field"/>
+                    <text x="150" y="102" class="table-field-text">id (PK)</text>
+                    <rect x="60" y="110" width="180" height="25" class="table-field"/>
+                    <text x="150" y="127" class="table-field-text">name (UNIQUE)</text>
+                    <rect x="60" y="135" width="180" height="25" class="table-field"/>
+                    <text x="150" y="152" class="table-field-text">region</text>
+                    <rect x="60" y="160" width="180" height="25" class="table-field"/>
+                    <text x="150" y="177" class="table-field-text">location</text>
+                    
+                    <!-- Turbines Table -->
+                    <rect x="350" y="50" width="250" height="250" class="table-box" rx="5"/>
+                    <text x="475" y="75" class="table-text">TURBINES</text>
+                    <rect x="360" y="85" width="230" height="25" class="table-field"/>
+                    <text x="475" y="102" class="table-field-text">id (PK)</text>
+                    <rect x="360" y="110" width="230" height="25" class="table-field"/>
+                    <text x="475" y="127" class="table-field-text">turbine_id (UNIQUE)</text>
+                    <rect x="360" y="135" width="230" height="25" class="table-field"/>
+                    <text x="475" y="152" class="table-field-text">name</text>
+                    <rect x="360" y="160" width="230" height="25" class="table-field"/>
+                    <text x="475" y="177" class="table-field-text">farm_id (FK → farms)</text>
+                    <rect x="360" y="185" width="230" height="25" class="table-field"/>
+                    <text x="475" y="202" class="table-field-text">rated_power</text>
+                    <rect x="360" y="210" width="230" height="25" class="table-field"/>
+                    <text x="475" y="227" class="table-field-text">status (ACTIVE/MAINTENANCE)</text>
+                    <rect x="360" y="235" width="230" height="25" class="table-field"/>
+                    <text x="475" y="252" class="table-field-text">installed_date, last_updated</text>
+                    
+                    <!-- Telemetry Table -->
+                    <rect x="700" y="50" width="250" height="300" class="table-box" rx="5"/>
+                    <text x="825" y="75" class="table-text">TELEMETRY</text>
+                    <rect x="710" y="85" width="230" height="25" class="table-field"/>
+                    <text x="825" y="102" class="table-field-text">id (PK)</text>
+                    <rect x="710" y="110" width="230" height="25" class="table-field"/>
+                    <text x="825" y="127" class="table-field-text">turbine_id (FK → turbines)</text>
+                    <rect x="710" y="135" width="230" height="25" class="table-field"/>
+                    <text x="825" y="152" class="table-field-text">timestamp</text>
+                    <rect x="710" y="160" width="230" height="25" class="table-field"/>
+                    <text x="825" y="177" class="table-field-text">wind_speed, power_output</text>
+                    <rect x="710" y="185" width="230" height="25" class="table-field"/>
+                    <text x="825" y="202" class="table-field-text">rotor_speed, temperature</text>
+                    <rect x="710" y="210" width="230" height="25" class="table-field"/>
+                    <text x="825" y="227" class="table-field-text">vibration, efficiency</text>
+                    <rect x="710" y="235" width="230" height="25" class="table-field"/>
+                    <text x="825" y="252" class="table-field-text">is_aggregated (boolean)</text>
+                    
+                    <!-- Telemetry Aggregates Table -->
+                    <rect x="1050" y="50" width="280" height="300" class="table-box" rx="5"/>
+                    <text x="1190" y="75" class="table-text">TELEMETRY_AGGREGATES</text>
+                    <rect x="1060" y="85" width="260" height="25" class="table-field"/>
+                    <text x="1190" y="102" class="table-field-text">id (PK)</text>
+                    <rect x="1060" y="110" width="260" height="25" class="table-field"/>
+                    <text x="1190" y="127" class="table-field-text">turbine_id (FK → turbines)</text>
+                    <rect x="1060" y="135" width="260" height="25" class="table-field"/>
+                    <text x="1190" y="152" class="table-field-text">hour_start</text>
+                    <rect x="1060" y="160" width="260" height="25" class="table-field"/>
+                    <text x="1190" y="177" class="table-field-text">avg_wind_speed, avg_power_output</text>
+                    <rect x="1060" y="185" width="260" height="25" class="table-field"/>
+                    <text x="1190" y="202" class="table-field-text">avg_rotor_speed, avg_temperature</text>
+                    <rect x="1060" y="210" width="260" height="25" class="table-field"/>
+                    <text x="1190" y="227" class="table-field-text">avg_vibration, avg_efficiency</text>
+                    <rect x="1060" y="235" width="260" height="25" class="table-field"/>
+                    <text x="1190" y="252" class="table-field-text">total_generation, data_point_count</text>
+                    <rect x="1060" y="260" width="260" height="25" class="table-field"/>
+                    <text x="1190" y="277" class="table-field-text">has_anomaly (boolean)</text>
+                    
+                    <!-- Health Alerts Table -->
+                    <rect x="500" y="400" width="280" height="180" class="table-box" rx="5"/>
+                    <text x="640" y="425" class="table-text">HEALTH_ALERTS</text>
+                    <rect x="510" y="435" width="260" height="25" class="table-field"/>
+                    <text x="640" y="452" class="table-field-text">id (PK)</text>
+                    <rect x="510" y="460" width="260" height="25" class="table-field"/>
+                    <text x="640" y="477" class="table-field-text">turbine_id (FK → turbines)</text>
+                    <rect x="510" y="485" width="260" height="25" class="table-field"/>
+                    <text x="640" y="502" class="table-field-text">alert_time</text>
+                    <rect x="510" y="510" width="260" height="25" class="table-field"/>
+                    <text x="640" y="527" class="table-field-text">alert_type, severity</text>
+                    <rect x="510" y="535" width="260" height="25" class="table-field"/>
+                    <text x="640" y="552" class="table-field-text">message, status</text>
+                    <rect x="510" y="560" width="260" height="25" class="table-field"/>
+                    <text x="640" y="577" class="table-field-text">resolved_at</text>
+                    
+                    <!-- Relationships -->
+                    <line x1="250" y1="125" x2="350" y2="200" class="arrow"/>
+                    <text x="280" y="150" class="arrow-label">1:N</text>
+                    
+                    <line x1="600" y1="175" x2="700" y2="200" class="arrow"/>
+                    <text x="640" y="180" class="arrow-label">1:N</text>
+                    
+                    <line x1="950" y1="200" x2="1050" y2="200" class="arrow"/>
+                    <text x="990" y="190" class="arrow-label">Aggregates</text>
+                    
+                    <line x1="600" y1="200" x2="640" y2="435" class="arrow"/>
+                    <text x="620" y="310" class="arrow-label">1:N</text>
+                </svg>
+            </div>
+            
+            <div class="table-info">
+                <h4>📊 Table Details</h4>
+                <table>
+                    <tr>
+                        <th>Table</th>
+                        <th>Purpose</th>
+                        <th>Key Fields</th>
+                        <th>Relationships</th>
+                    </tr>
+                    <tr>
+                        <td><strong>farms</strong></td>
+                        <td>Stores wind farm information</td>
+                        <td>id, name, region, location</td>
+                        <td>One-to-Many with turbines</td>
+                    </tr>
+                    <tr>
+                        <td><strong>turbines</strong></td>
+                        <td>Stores individual turbine data</td>
+                        <td>id, turbine_id, name, farm_id, rated_power, status</td>
+                        <td>Many-to-One with farms, One-to-Many with telemetry & alerts</td>
+                    </tr>
+                    <tr>
+                        <td><strong>telemetry</strong></td>
+                        <td>Raw sensor data (every 10 seconds)</td>
+                        <td>id, turbine_id, timestamp, wind_speed, power_output, efficiency, is_aggregated</td>
+                        <td>Many-to-One with turbines, aggregated into telemetry_aggregates</td>
+                    </tr>
+                    <tr>
+                        <td><strong>telemetry_aggregates</strong></td>
+                        <td>Hourly aggregated telemetry data</td>
+                        <td>id, turbine_id, hour_start, avg_* fields, total_generation, has_anomaly</td>
+                        <td>Many-to-One with turbines, used for analytics</td>
+                    </tr>
+                    <tr>
+                        <td><strong>health_alerts</strong></td>
+                        <td>Anomaly detection alerts</td>
+                        <td>id, turbine_id, alert_time, alert_type, severity, status</td>
+                        <td>Many-to-One with turbines</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Data Flow Section -->
+        <div class="section" id="data-flow">
+            <h2>2. Data Flow Architecture</h2>
+            
+            <div class="diagram-container">
+                <svg width="100%" height="800" viewBox="0 0 1400 800">
+                    <defs>
+                        <marker id="arrowhead2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#667eea" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- Frontend -->
+                    <rect x="50" y="50" width="200" height="100" class="controller-box" rx="5"/>
+                    <text x="150" y="90" class="controller-text">Angular Frontend</text>
+                    <text x="150" y="110" class="controller-text">(Dashboard, Analytics)</text>
+                    
+                    <!-- REST API -->
+                    <rect x="300" y="50" width="200" height="100" class="controller-box" rx="5"/>
+                    <text x="400" y="90" class="controller-text">REST Controllers</text>
+                    <text x="400" y="110" class="controller-text">(API Endpoints)</text>
+                    
+                    <!-- Services -->
+                    <rect x="550" y="50" width="200" height="100" class="service-box" rx="5"/>
+                    <text x="650" y="90" class="service-text">Service Layer</text>
+                    <text x="650" y="110" class="service-text">(Business Logic)</text>
+                    
+                    <!-- Repositories -->
+                    <rect x="800" y="50" width="200" height="100" class="service-box" rx="5"/>
+                    <text x="900" y="90" class="service-text">JPA Repositories</text>
+                    <text x="900" y="110" class="service-text">(Data Access)</text>
+                    
+                    <!-- Database -->
+                    <rect x="1050" y="50" width="200" height="100" class="table-box" rx="5"/>
+                    <text x="1150" y="90" class="table-text">MySQL Database</text>
+                    <text x="1150" y="110" class="table-text">(Persistence)</text>
+                    
+                    <!-- Schedulers -->
+                    <rect x="50" y="250" width="250" height="120" class="scheduler-box" rx="5"/>
+                    <text x="175" y="285" class="scheduler-text">TelemetryGeneratorScheduler</text>
+                    <text x="175" y="305" class="scheduler-text">@Scheduled(fixedRate = 10000)</text>
+                    <text x="175" y="325" class="scheduler-text">Every 10 seconds</text>
+                    <text x="175" y="345" class="scheduler-text">Generates telemetry for ACTIVE turbines</text>
+                    
+                    <rect x="350" y="250" width="250" height="120" class="scheduler-box" rx="5"/>
+                    <text x="475" y="285" class="scheduler-text">TelemetryAggregationScheduler</text>
+                    <text x="475" y="305" class="scheduler-text">@Scheduled(fixedRate = 3600000)</text>
+                    <text x="475" y="325" class="scheduler-text">Every 1 hour</text>
+                    <text x="475" y="345" class="scheduler-text">Aggregates previous hour's telemetry</text>
+                    
+                    <!-- Telemetry Service -->
+                    <rect x="650" y="250" width="200" height="120" class="service-box" rx="5"/>
+                    <text x="750" y="285" class="service-text">TelemetryService</text>
+                    <text x="750" y="305" class="service-text">saveTelemetryBatch()</text>
+                    <text x="750" y="325" class="service-text">Batch size: 500</text>
+                    
+                    <!-- Aggregation Service -->
+                    <rect x="900" y="250" width="200" height="120" class="service-box" rx="5"/>
+                    <text x="1000" y="285" class="service-text">AggregationService</text>
+                    <text x="1000" y="305" class="service-text">aggregateTelemetryForHourParallel()</text>
+                    <text x="1000" y="325" class="service-text">Creates hourly aggregates</text>
+                    
+                    <!-- Anomaly Service -->
+                    <rect x="1150" y="250" width="200" height="120" class="service-box" rx="5"/>
+                    <text x="1250" y="285" class="service-text">AnomalyService</text>
+                    <text x="1250" y="305" class="service-text">detectAnomaly()</text>
+                    <text x="1250" y="325" class="service-text">Creates health alerts</text>
+                    
+                    <!-- Analytics Service -->
+                    <rect x="650" y="450" width="200" height="120" class="service-box" rx="5"/>
+                    <text x="750" y="485" class="service-text">AnalyticsService</text>
+                    <text x="750" y="505" class="service-text">getDailyMetrics()</text>
+                    <text x="750" y="525" class="service-text">getGraphData()</text>
+                    <text x="750" y="545" class="service-text">Groups by date & farm</text>
+                    
+                    <!-- Data Flow Arrows -->
+                    <line x1="250" y1="100" x2="300" y2="100" class="arrow"/>
+                    <text x="270" y="90" class="arrow-label">HTTP Requests</text>
+                    
+                    <line x1="500" y1="100" x2="550" y2="100" class="arrow"/>
+                    <text x="520" y="90" class="arrow-label">Service Calls</text>
+                    
+                    <line x1="750" y1="100" x2="800" y2="100" class="arrow"/>
+                    <text x="770" y="90" class="arrow-label">Repository Calls</text>
+                    
+                    <line x1="1000" y1="100" x2="1050" y2="100" class="arrow"/>
+                    <text x="1020" y="90" class="arrow-label">SQL Queries</text>
+                    
+                    <line x1="175" y1="250" x2="750" y2="310" class="arrow"/>
+                    <text x="450" y="280" class="arrow-label">Generate Telemetry</text>
+                    
+                    <line x1="475" y1="250" x2="1000" y2="310" class="arrow"/>
+                    <text x="700" y="280" class="arrow-label">Trigger Aggregation</text>
+                    
+                    <line x1="1000" y1="370" x2="1250" y2="310" class="arrow"/>
+                    <text x="1120" y="340" class="arrow-label">Check Anomalies</text>
+                    
+                    <line x1="1000" y1="370" x2="750" y2="450" class="arrow"/>
+                    <text x="850" y="410" class="arrow-label">Aggregated Data</text>
+                    
+                    <line x1="750" y1="450" x2="400" y2="150" class="arrow"/>
+                    <text x="550" y="300" class="arrow-label">Analytics Response</text>
+                </svg>
+            </div>
+            
+            <h3>Data Flow Steps</h3>
+            <div class="flow-step">
+                <span class="flow-step-number">1</span>
+                <strong>Telemetry Generation:</strong> Every 10 seconds, <span class="highlight">TelemetryGeneratorScheduler</span> generates telemetry data for all ACTIVE turbines and saves in batches of 500.
+            </div>
+            <div class="flow-step">
+                <span class="flow-step-number">2</span>
+                <strong>Data Storage:</strong> Raw telemetry data is stored in the <span class="highlight">telemetry</span> table with <code>is_aggregated = false</code>.
+            </div>
+            <div class="flow-step">
+                <span class="flow-step-number">3</span>
+                <strong>Hourly Aggregation:</strong> Every hour, <span class="highlight">TelemetryAggregationScheduler</span> triggers aggregation of the previous hour's unaggregated telemetry.
+            </div>
+            <div class="flow-step">
+                <span class="flow-step-number">4</span>
+                <strong>Aggregation Process:</strong> <span class="highlight">AggregationService</span> reads unaggregated telemetry, calculates averages, and creates <span class="highlight">TelemetryAggregate</span> records.
+            </div>
+            <div class="flow-step">
+                <span class="flow-step-number">5</span>
+                <strong>Anomaly Detection:</strong> During aggregation, <span class="highlight">AnomalyService</span> checks for anomalies and creates <span class="highlight">HealthAlert</span> records if issues are detected.
+            </div>
+            <div class="flow-step">
+                <span class="flow-step-number">6</span>
+                <strong>Mark as Aggregated:</strong> Original telemetry records are marked with <code>is_aggregated = true</code> to prevent re-aggregation.
+            </div>
+            <div class="flow-step">
+                <span class="flow-step-number">7</span>
+                <strong>Analytics Processing:</strong> <span class="highlight">AnalyticsService</span> groups hourly aggregates by date and farm to create daily metrics for the frontend.
+            </div>
+            <div class="flow-step">
+                <span class="flow-step-number">8</span>
+                <strong>API Response:</strong> Frontend requests analytics data, which is calculated from aggregates and returned as <span class="highlight">DailyMetricsDTO</span> and <span class="highlight">GraphDataDTO</span>.
+            </div>
+        </div>
+        
+        <!-- Services Section -->
+        <div class="section" id="services">
+            <h2>3. Service Layer Architecture</h2>
+            
+            <div class="table-info">
+                <h4>🔧 Core Services</h4>
+                <table>
+                    <tr>
+                        <th>Service</th>
+                        <th>Key Methods</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><strong>FarmService</strong></td>
+                        <td>getAllFarms(), getFarmById(), createFarm()</td>
+                        <td>Manages wind farm data</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TurbineService</strong></td>
+                        <td>getAllTurbinesPaginated(), getTurbineById(), createTurbine()</td>
+                        <td>Manages turbine CRUD operations with pagination</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TelemetryService</strong></td>
+                        <td>saveTelemetryBatch(), saveTelemetryBatchOptimized()</td>
+                        <td>Handles telemetry data storage with batch processing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AggregationService</strong></td>
+                        <td>aggregateTelemetryForHourParallel(), getAggregatesByFilters()</td>
+                        <td>Aggregates raw telemetry into hourly summaries</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AnalyticsService</strong></td>
+                        <td>getDailyMetrics(), getGraphData()</td>
+                        <td>Calculates daily metrics and graph data from aggregates</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AnomalyService</strong></td>
+                        <td>detectAnomaly(), createAlert(), getActiveAlertsPaginated()</td>
+                        <td>Detects anomalies and manages health alerts</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <h3>Service Method Details</h3>
+            
+            <div class="concept-box">
+                <h4>📦 AggregationService.aggregateTelemetryForHourParallel()</h4>
+                <ul>
+                    <li><strong>Input:</strong> hourStart (LocalDateTime)</li>
+                    <li><strong>Process:</strong>
+                        <ul>
+                            <li>Fetches all turbines</li>
+                            <li>For each turbine, gets unaggregated telemetry for the hour</li>
+                            <li>Calculates averages (wind speed, power, efficiency, etc.)</li>
+                            <li>Calculates total generation: sum(power_output) * (10/3600) hours</li>
+                            <li>Creates TelemetryAggregate record</li>
+                            <li>Marks telemetry records as aggregated</li>
+                            <li>Uses batch saving (500 records per batch)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Output:</strong> Creates TelemetryAggregate records in database</li>
+                </ul>
+            </div>
+            
+            <div class="concept-box">
+                <h4>📊 AnalyticsService.getDailyMetrics()</h4>
+                <ul>
+                    <li><strong>Input:</strong> startTime, endTime, farmName (optional), region (optional)</li>
+                    <li><strong>Process:</strong>
+                        <ul>
+                            <li>Fetches TelemetryAggregate records for date range with filters</li>
+                            <li>Groups by date and farm</li>
+                            <li>For each date-farm combination:
+                                <ul>
+                                    <li>Sum totalGeneration</li>
+                                    <li>Average efficiency (sum of avgEfficiency / count)</li>
+                                    <li>Sum maxPower (sum of avgPowerOutput * 1000 kW)</li>
+                                    <li>Count operating hours (number of aggregates)</li>
+                                </ul>
+                            </li>
+                            <li>Creates "All Farms" row per day (sum of all farms)</li>
+                            <li>Returns list of DailyMetricsDTO</li>
+                        </ul>
+                    </li>
+                    <li><strong>Output:</strong> List&lt;DailyMetricsDTO&gt; with one row per farm per day + "All Farms" row</li>
+                </ul>
+            </div>
+            
+            <div class="concept-box">
+                <h4>📈 AnalyticsService.getGraphData()</h4>
+                <ul>
+                    <li><strong>Input:</strong> startTime, endTime, farmName (optional), region (optional)</li>
+                    <li><strong>Process:</strong>
+                        <ul>
+                            <li>Calls getDailyMetrics() to get daily data</li>
+                            <li>Filters to only "All Farms" rows</li>
+                            <li>Fills missing dates with zeros for continuous graph display</li>
+                            <li>Returns data sorted by date</li>
+                        </ul>
+                    </li>
+                    <li><strong>Output:</strong> List&lt;GraphDataDTO&gt; with date, generation, efficiency</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Schedulers Section -->
+        <div class="section" id="schedulers">
+            <h2>4. Scheduled Tasks & Automation</h2>
+            
+            <div class="diagram-container">
+                <svg width="100%" height="400" viewBox="0 0 1200 400">
+                    <defs>
+                        <marker id="arrowhead3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#9C27B0" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- Time Line -->
+                    <line x1="50" y1="350" x2="1150" y2="350" stroke="#333" stroke-width="3"/>
+                    <text x="50" y="340" fill="#333" font-size="14" font-weight="bold">Time →</text>
+                    
+                    <!-- Every 10 seconds -->
+                    <circle cx="150" cy="350" r="8" fill="#9C27B0"/>
+                    <text x="150" y="330" fill="#9C27B0" font-size="12" font-weight="bold" text-anchor="middle">10s</text>
+                    <rect x="100" y="200" width="100" height="80" class="scheduler-box" rx="5"/>
+                    <text x="150" y="230" class="scheduler-text">Generate</text>
+                    <text x="150" y="250" class="scheduler-text">Telemetry</text>
+                    <line x1="150" y1="280" x2="150" y2="342" class="arrow"/>
+                    
+                    <!-- Every 1 hour -->
+                    <circle cx="600" cy="350" r="8" fill="#9C27B0"/>
+                    <text x="600" y="330" fill="#9C27B0" font-size="12" font-weight="bold" text-anchor="middle">1h</text>
+                    <rect x="550" y="200" width="100" height="80" class="scheduler-box" rx="5"/>
+                    <text x="600" y="230" class="scheduler-text">Aggregate</text>
+                    <text x="600" y="250" class="scheduler-text">Previous Hour</text>
+                    <line x1="600" y1="280" x2="600" y2="342" class="arrow"/>
+                    
+                    <!-- On Startup -->
+                    <circle cx="1050" cy="350" r="8" fill="#9C27B0"/>
+                    <text x="1050" y="330" fill="#9C27B0" font-size="12" font-weight="bold" text-anchor="middle">Startup</text>
+                    <rect x="1000" y="50" width="100" height="80" class="scheduler-box" rx="5"/>
+                    <text x="1050" y="80" class="scheduler-text">@PostConstruct</text>
+                    <text x="1050" y="100" class="scheduler-text">Aggregate</text>
+                    <text x="1050" y="120" class="scheduler-text">Last 24h</text>
+                    <line x1="1050" y1="130" x2="1050" y2="342" class="arrow"/>
+                    
+                    <!-- Data Flow -->
+                    <rect x="200" y="100" width="300" height="60" class="table-box" rx="5"/>
+                    <text x="350" y="130" class="table-text">Telemetry Table</text>
+                    <text x="350" y="150" class="table-text">(is_aggregated = false)</text>
+                    
+                    <rect x="650" y="100" width="300" height="60" class="table-box" rx="5"/>
+                    <text x="800" y="130" class="table-text">Telemetry Aggregates Table</text>
+                    <text x="800" y="150" class="table-text">(Hourly summaries)</text>
+                    
+                    <line x1="500" y1="130" x2="650" y2="130" class="arrow"/>
+                    <text x="570" y="120" class="arrow-label">Aggregation</text>
+                </svg>
+            </div>
+            
+            <h3>Scheduler Details</h3>
+            
+            <div class="concept-box">
+                <h4>⏰ TelemetryGeneratorScheduler</h4>
+                <ul>
+                    <li><strong>Schedule:</strong> @Scheduled(fixedRate = 10000) - Every 10 seconds</li>
+                    <li><strong>Method:</strong> generateTelemetryData()</li>
+                    <li><strong>Process:</strong>
+                        <ul>
+                            <li>Fetches all ACTIVE turbines</li>
+                            <li>For each turbine, generates random telemetry data:
+                                <ul>
+                                    <li>windSpeed: 8.0 - 20.0 m/s</li>
+                                    <li>powerOutput: 1.5 - 3.5 MW</li>
+                                    <li>rotorSpeed: 10.0 - 20.0 rpm</li>
+                                    <li>temperature: 15.0 - 35.0 °C</li>
+                                    <li>vibration: 2.0 - 7.0</li>
+                                    <li>efficiency: (powerOutput / ratedPower) * 100%</li>
+                                </ul>
+                            </li>
+                            <li>Saves in batches of 500 records</li>
+                            <li>Sets isAggregated = false</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="concept-box">
+                <h4>🔄 TelemetryAggregationScheduler</h4>
+                <ul>
+                    <li><strong>Schedule:</strong> @Scheduled(fixedRate = 3600000) - Every 1 hour</li>
+                    <li><strong>Method:</strong> aggregatePreviousHour()</li>
+                    <li><strong>Process:</strong>
+                        <ul>
+                            <li>Calculates previous hour: now().truncatedTo(HOURS).minusHours(1)</li>
+                            <li>Calls AggregationService.aggregateTelemetryForHourParallel()</li>
+                            <li>Aggregates all unaggregated telemetry for that hour</li>
+                        </ul>
+                    </li>
+                    <li><strong>@PostConstruct Method:</strong> aggregateExistingTelemetryOnStartup()
+                        <ul>
+                            <li>Runs once on application startup</li>
+                            <li>Aggregates last 24 hours of telemetry</li>
+                            <li>Ensures existing data is aggregated before real-time processing begins</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- API Endpoints Section -->
+        <div class="section" id="api-endpoints">
+            <h2>5. API Endpoints & Controllers</h2>
+            
+            <div class="table-info">
+                <h4>🌐 REST API Endpoints</h4>
+                <table>
+                    <tr>
+                        <th>Controller</th>
+                        <th>Endpoint</th>
+                        <th>Method</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><strong>TurbineController</strong></td>
+                        <td>/api/turbines</td>
+                        <td>GET</td>
+                        <td>Get paginated turbines (page, size, filters)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TurbineController</strong></td>
+                        <td>/api/turbines/{id}</td>
+                        <td>GET</td>
+                        <td>Get turbine by ID</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FarmController</strong></td>
+                        <td>/api/farms</td>
+                        <td>GET</td>
+                        <td>Get all farms</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HealthController</strong></td>
+                        <td>/api/health/alerts</td>
+                        <td>GET</td>
+                        <td>Get paginated active alerts</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AnalyticsController</strong></td>
+                        <td>/api/analytics/daily</td>
+                        <td>GET</td>
+                        <td>Get daily metrics (startTime, endTime, farm, region)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AnalyticsController</strong></td>
+                        <td>/api/analytics/graph</td>
+                        <td>GET</td>
+                        <td>Get graph data (startTime, endTime, farm, region)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>InitController</strong></td>
+                        <td>/api/init/data?count=N</td>
+                        <td>POST</td>
+                        <td>Initialize N turbines with telemetry data</td>
+                    </tr>
+                    <tr>
+                        <td><strong>InitController</strong></td>
+                        <td>/api/init/aggregate</td>
+                        <td>POST</td>
+                        <td>Manually trigger aggregation for previous hour</td>
+                    </tr>
+                    <tr>
+                        <td><strong>InitController</strong></td>
+                        <td>/api/init/data</td>
+                        <td>DELETE</td>
+                        <td>Clear all data (farms, turbines, telemetry)</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Concepts Section -->
+        <div class="section" id="concepts">
+            <h2>6. Key Concepts & Implementations</h2>
+            
+            <div class="concept-box">
+                <h4>📦 Batch Processing</h4>
+                <ul>
+                    <li><strong>Purpose:</strong> Optimize database writes for large datasets</li>
+                    <li><strong>Implementation:</strong>
+                        <ul>
+                            <li>Batch size: 500 records per batch</li>
+                            <li>Used in: TelemetryService, AggregationService, InitController</li>
+                            <li>Configuration: hibernate.jdbc.batch_size = 500 in application.yaml</li>
+                        </ul>
+                    </li>
+                    <li><strong>Benefits:</strong> Reduces database round trips, improves performance for bulk inserts</li>
+                </ul>
+            </div>
+            
+            <div class="concept-box">
+                <h4>📄 Pagination</h4>
+                <ul>
+                    <li><strong>Purpose:</strong> Handle large datasets efficiently in API responses</li>
+                    <li><strong>Implementation:</strong>
+                        <ul>
+                            <li>Backend: Spring Data JPA Page&lt;T&gt; and Pageable</li>
+                            <li>Frontend: Page numbers, page size, total count</li>
+                            <li>Used in: TurbineController, HealthController</li>
+                        </ul>
+                    </li>
+                    <li><strong>Response Format:</strong> PageResponse&lt;T&gt; with content, page, size, totalElements</li>
+                </ul>
+            </div>
+            
+            <div class="concept-box">
+                <h4>🔄 Data Aggregation</h4>
+                <ul>
+                    <li><strong>Purpose:</strong> Transform raw telemetry (every 10s) into hourly summaries</li>
+                    <li><strong>Process:</strong>
+                        <ul>
+                            <li>Raw telemetry → Hourly aggregates (averages, totals)</li>
+                            <li>Hourly aggregates → Daily metrics (grouped by date and farm)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Benefits:</strong> Reduces data volume, enables efficient analytics queries</li>
+                </ul>
+            </div>
+            
+            <div class="concept-box">
+                <h4>🚨 Anomaly Detection</h4>
+                <ul>
+                    <li><strong>Purpose:</strong> Detect abnormal turbine behavior automatically</li>
+                    <li><strong>Rules:</strong>
+                        <ul>
+                            <li>Low efficiency: &lt; 30%</li>
+                            <li>High efficiency: &gt; 95%</li>
+                            <li>High vibration: &gt; 10.0</li>
+                            <li>High temperature: &gt; 80°C</li>
+                            <li>Low temperature: &lt; -20°C</li>
+                            <li>Low power despite wind: power &lt; 0.1 MW and wind &gt; 5 m/s</li>
+                        </ul>
+                    </li>
+                    <li><strong>Severity Levels:</strong> CRITICAL, HIGH, MEDIUM</li>
+                </ul>
+            </div>
+            
+            <div class="concept-box">
+                <h4>⚡ Parallel Processing</h4>
+                <ul>
+                    <li><strong>Purpose:</strong> Process multiple turbines simultaneously during aggregation</li>
+                    <li><strong>Implementation:</strong> aggregateTelemetryForHourParallel() processes all turbines in parallel</li>
+                    <li><strong>Benefits:</strong> Faster aggregation for large numbers of turbines</li>
+                </ul>
+            </div>
+            
+            <div class="concept-box">
+                <h4>🔍 Filtering & Search</h4>
+                <ul>
+                    <li><strong>Purpose:</strong> Allow users to filter data by farm, region, status, date range</li>
+                    <li><strong>Implementation:</strong>
+                        <ul>
+                            <li>Backend: JPA Specifications or custom query methods</li>
+                            <li>Frontend: Dropdown filters, date range pickers</li>
+                        </ul>
+                    </li>
+                    <li><strong>Used in:</strong> Turbines list, Analytics, Health alerts</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Batch Processing Flow -->
+        <div class="section" id="batch-processing">
+            <h2>7. Batch Processing Flow</h2>
+            
+            <div class="diagram-container">
+                <svg width="100%" height="500" viewBox="0 0 1200 500">
+                    <defs>
+                        <marker id="arrowhead4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#2196F3" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- Batch 1 -->
+                    <rect x="50" y="100" width="200" height="80" class="service-box" rx="5"/>
+                    <text x="150" y="135" class="service-text">Batch 1</text>
+                    <text x="150" y="155" class="service-text">500 records</text>
+                    <text x="150" y="175" class="service-text">saveAll(batch1)</text>
+                    
+                    <!-- Batch 2 -->
+                    <rect x="300" y="100" width="200" height="80" class="service-box" rx="5"/>
+                    <text x="400" y="135" class="service-text">Batch 2</text>
+                    <text x="400" y="155" class="service-text">500 records</text>
+                    <text x="400" y="175" class="service-text">saveAll(batch2)</text>
+                    
+                    <!-- Batch 3 -->
+                    <rect x="550" y="100" width="200" height="80" class="service-box" rx="5"/>
+                    <text x="650" y="135" class="service-text">Batch 3</text>
+                    <text x="650" y="155" class="service-text">500 records</text>
+                    <text x="650" y="175" class="service-text">saveAll(batch3)</text>
+                    
+                    <!-- Remaining -->
+                    <rect x="800" y="100" width="200" height="80" class="service-box" rx="5"/>
+                    <text x="900" y="135" class="service-text">Remaining</text>
+                    <text x="900" y="155" class="service-text">200 records</text>
+                    <text x="900" y="175" class="service-text">saveAll(remaining)</text>
+                    
+                    <!-- Database -->
+                    <rect x="400" y="300" width="400" height="100" class="table-box" rx="5"/>
+                    <text x="600" y="340" class="table-text">MySQL Database</text>
+                    <text x="600" y="365" class="table-text">Single Transaction</text>
+                    <text x="600" y="385" class="table-text">Batch Insert (JDBC Batch)</text>
+                    
+                    <!-- Arrows -->
+                    <line x1="150" y1="180" x2="500" y2="300" class="arrow"/>
+                    <line x1="400" y1="180" x2="550" y2="300" class="arrow"/>
+                    <line x1="650" y1="180" x2="600" y2="300" class="arrow"/>
+                    <line x1="900" y1="180" x2="650" y2="300" class="arrow"/>
+                    
+                    <!-- Code Example -->
+                    <rect x="50" y="250" width="1100" height="30" fill="#2d2d2d" rx="3"/>
+                    <text x="60" y="270" fill="#f8f8f2" font-size="12" font-family="monospace">if (batch.size() &gt;= 500) { saveAll(batch); batch.clear(); }</text>
+                </svg>
+            </div>
+            
+            <div class="code-block">
+// Example: Batch Processing in TelemetryService
+List&lt;Telemetry&gt; batch = new ArrayList&lt;&gt;();
+int batchSize = 500;
+
+for (Telemetry telemetry : telemetryList) {
+    batch.add(telemetry);
+    
+    if (batch.size() &gt;= batchSize) {
+        telemetryRepository.saveAll(batch);  // JDBC batch insert
+        batch.clear();
+    }
+}
+
+if (!batch.isEmpty()) {
+    telemetryRepository.saveAll(batch);  // Save remaining
+}
+            </div>
+        </div>
+        
+        <!-- Aggregation Process -->
+        <div class="section" id="aggregation">
+            <h2>8. Aggregation Process - Detailed Flow</h2>
+            
+            <div class="diagram-container">
+                <svg width="100%" height="700" viewBox="0 0 1400 700">
+                    <defs>
+                        <marker id="arrowhead5" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#4CAF50" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- Step 1: Fetch Unaggregated -->
+                    <rect x="50" y="50" width="300" height="100" class="service-box" rx="5"/>
+                    <text x="200" y="85" class="service-text">Step 1: Fetch Unaggregated Telemetry</text>
+                    <text x="200" y="105" class="service-text">findUnaggregatedByTurbineAndTimeRange()</text>
+                    <text x="200" y="125" class="service-text">Hour: 10:00 - 11:00</text>
+                    <text x="200" y="145" class="service-text">is_aggregated = false</text>
+                    
+                    <!-- Step 2: Calculate Averages -->
+                    <rect x="400" y="50" width="300" height="100" class="service-box" rx="5"/>
+                    <text x="550" y="85" class="service-text">Step 2: Calculate Aggregates</text>
+                    <text x="550" y="105" class="service-text">avgWindSpeed = sum(windSpeed) / count</text>
+                    <text x="550" y="125" class="service-text">avgPowerOutput = sum(powerOutput) / count</text>
+                    <text x="550" y="145" class="service-text">totalGeneration = sum(powerOutput) * (10/3600)</text>
+                    
+                    <!-- Step 3: Anomaly Detection -->
+                    <rect x="750" y="50" width="300" height="100" class="service-box" rx="5"/>
+                    <text x="900" y="85" class="service-text">Step 3: Anomaly Detection</text>
+                    <text x="900" y="105" class="service-text">detectAnomaly(aggregate)</text>
+                    <text x="900" y="125" class="service-text">Check thresholds</text>
+                    <text x="900" y="145" class="service-text">Create HealthAlert if needed</text>
+                    
+                    <!-- Step 4: Save Aggregate -->
+                    <rect x="1100" y="50" width="250" height="100" class="table-box" rx="5"/>
+                    <text x="1225" y="85" class="table-text">Step 4: Save Aggregate</text>
+                    <text x="1225" y="105" class="table-text">TelemetryAggregate</text>
+                    <text x="1225" y="125" class="table-text">telemetry_aggregates</text>
+                    <text x="1225" y="145" class="table-text">table</text>
+                    
+                    <!-- Step 5: Mark as Aggregated -->
+                    <rect x="50" y="200" width="300" height="100" class="service-box" rx="5"/>
+                    <text x="200" y="235" class="service-text">Step 5: Mark as Aggregated</text>
+                    <text x="200" y="255" class="service-text">Update telemetry records</text>
+                    <text x="200" y="275" class="service-text">is_aggregated = true</text>
+                    <text x="200" y="295" class="service-text">saveAll(telemetryList)</text>
+                    
+                    <!-- Daily Aggregation -->
+                    <rect x="400" y="350" width="400" height="150" class="service-box" rx="5"/>
+                    <text x="600" y="385" class="service-text">Daily Metrics Aggregation</text>
+                    <text x="600" y="410" class="service-text">Group by: date + farm</text>
+                    <text x="600" y="435" class="service-text">Sum: totalGeneration, maxPower</text>
+                    <text x="600" y="460" class="service-text">Average: efficiency (sum / count)</text>
+                    <text x="600" y="485" class="service-text">Create: DailyMetricsDTO (per farm + "All Farms")</text>
+                    
+                    <!-- Graph Data -->
+                    <rect x="850" y="350" width="300" height="150" class="service-box" rx="5"/>
+                    <text x="1000" y="385" class="service-text">Graph Data Generation</text>
+                    <text x="1000" y="410" class="service-text">Filter: "All Farms" rows only</text>
+                    <text x="1000" y="435" class="service-text">Fill missing dates with zeros</text>
+                    <text x="1000" y="460" class="service-text">Create: GraphDataDTO</text>
+                    <text x="1000" y="485" class="service-text">Return: date, generation, efficiency</text>
+                    
+                    <!-- Arrows -->
+                    <line x1="350" y1="100" x2="400" y2="100" class="arrow"/>
+                    <line x1="700" y1="100" x2="750" y2="100" class="arrow"/>
+                    <line x1="1050" y1="100" x2="1100" y2="100" class="arrow"/>
+                    <line x1="1225" y1="150" x2="200" y2="200" class="arrow"/>
+                    <line x1="200" y1="300" x2="600" y2="350" class="arrow"/>
+                    <line x1="800" y1="425" x2="850" y2="425" class="arrow"/>
+                </svg>
+            </div>
+            
+            <h3>Aggregation Calculation Example</h3>
+            <div class="code-block">
+// Example: Hour 10:00-11:00 has 360 telemetry records (one every 10 seconds)
+// Each record has powerOutput in MW
+
+// Step 1: Calculate averages
+avgPowerOutput = sum(powerOutput) / 360
+avgEfficiency = sum(efficiency) / 360
+avgWindSpeed = sum(windSpeed) / 360
+// ... other averages
+
+// Step 2: Calculate total generation (in MWh)
+// Each telemetry record represents 10 seconds = 10/3600 hours
+totalGeneration = sum(powerOutput) * (10.0 / 3600.0)
+
+// Step 3: Daily aggregation (from hourly aggregates)
+// For date 2026-02-01, farm "Wind Farm Alpha":
+totalGeneration = sum(all hourly totalGeneration for that day)
+avgEfficiency = sum(all hourly avgEfficiency) / count of hours
+maxPower = sum(all hourly avgPowerOutput) * 1000  // Convert to kW
+operatingHours = count of hourly aggregates
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px; padding: 20px; background: #f0f0f0; border-radius: 10px;">
+            <p style="color: #666; font-size: 1.1em;">
+                <strong>Wind Turbine Health Monitoring System</strong><br>
+                Complete Architecture & Flow Documentation
+            </p>
+            <p style="color: #999; margin-top: 10px;">
+                Generated: 2026 | All rights reserved
+            </p>
+        </div>
+    </div>
+</body>
+</html>
