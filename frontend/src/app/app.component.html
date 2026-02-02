@@ -282,7 +282,12 @@
                 <td>{{ alert.message }}</td>
                 <td>{{ formatDate(alert.alertTime) }}</td>
                 <td>
-                  <button class="btn-small" (click)="resolveAlert(alert.id!)">Resolve</button>
+                  <button 
+                    class="btn-small" 
+                    (click)="resolveAlert(alert.id!)"
+                    [disabled]="!alert.id || alert.status === 'RESOLVED'">
+                    {{ alert.status === 'RESOLVED' ? 'Resolved' : 'Resolve' }}
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -347,14 +352,14 @@
         <p>Trends over time</p>
         <div class="analytics-chart">
           <div class="chart-container-modern">
-            <svg viewBox="0 0 1000 370" class="line-chart-svg">
+            <svg viewBox="0 0 1000 420" class="line-chart-svg" style="overflow: visible;">
               <!-- Grid lines -->
               <g class="grid-lines">
                 <line x1="50" y1="25" x2="950" y2="25" stroke="#e2e8f0" stroke-width="1" opacity="0.5"/>
                 <line x1="50" y1="105" x2="950" y2="105" stroke="#e2e8f0" stroke-width="1" opacity="0.5"/>
                 <line x1="50" y1="185" x2="950" y2="185" stroke="#e2e8f0" stroke-width="1" opacity="0.5"/>
                 <line x1="50" y1="265" x2="950" y2="265" stroke="#e2e8f0" stroke-width="1" opacity="0.5"/>
-                <line x1="50" y1="345" x2="950" y2="345" stroke="#e2e8f0" stroke-width="1" opacity="0.5"/>
+                <line x1="50" y1="340" x2="950" y2="340" stroke="#e2e8f0" stroke-width="1" opacity="0.5"/>
               </g>
               
               <!-- Y-axis labels (Generation) -->
@@ -363,7 +368,7 @@
                 <text x="45" y="110" text-anchor="end" class="axis-label">{{ getGenerationYLabel(1) }}</text>
                 <text x="45" y="190" text-anchor="end" class="axis-label">{{ getGenerationYLabel(2) }}</text>
                 <text x="45" y="270" text-anchor="end" class="axis-label">{{ getGenerationYLabel(3) }}</text>
-                <text x="45" y="350" text-anchor="end" class="axis-label">{{ getGenerationYLabel(4) }}</text>
+                <text x="45" y="345" text-anchor="end" class="axis-label">{{ getGenerationYLabel(4) }}</text>
               </g>
               
               <!-- Y-axis labels (Efficiency) -->
@@ -372,7 +377,7 @@
                 <text x="955" y="110" text-anchor="start" class="axis-label efficiency">{{ getEfficiencyYLabel(1) }}</text>
                 <text x="955" y="190" text-anchor="start" class="axis-label efficiency">{{ getEfficiencyYLabel(2) }}</text>
                 <text x="955" y="270" text-anchor="start" class="axis-label efficiency">{{ getEfficiencyYLabel(3) }}</text>
-                <text x="955" y="350" text-anchor="start" class="axis-label efficiency">{{ getEfficiencyYLabel(4) }}</text>
+                <text x="955" y="345" text-anchor="start" class="axis-label efficiency">{{ getEfficiencyYLabel(4) }}</text>
               </g>
               
               <!-- Generation area and line -->
@@ -413,10 +418,10 @@
               <g class="x-axis-labels">
                 <text *ngFor="let data of graphData; let i = index" 
                       [attr.x]="getChartX(i)" 
-                      y="365" 
+                      y="360" 
                       text-anchor="middle" 
                       class="axis-label x-axis"
-                      [attr.transform]="'rotate(-45 ' + getChartX(i) + ' 365)'">
+                      [attr.transform]="'rotate(-45 ' + getChartX(i) + ' 360)'">
                   {{ data.displayDate || data.date }}
                 </text>
               </g>

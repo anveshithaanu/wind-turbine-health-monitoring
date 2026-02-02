@@ -314,10 +314,53 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     return [...new Set(this.farms.map(f => f.region))];
   }
   
-  resolveAlert(alertId: number): void {
+  resolveAlert(alertId: number | undefined): void {
+    if (!alertId) {
+      console.error('Alert ID is missing');
+      window.alert('Cannot resolve alert: Alert ID is missing.');
+      return;
+    }
+    
+    console.log('Resolving alert with ID:', alertId);
+    
+    // Check if alert is already resolved
+    const healthAlert = this.alerts.find(a => a.id === alertId);
+    if (healthAlert && healthAlert.status === 'RESOLVED') {
+      console.warn('Alert is already resolved');
+      return;
+    }
+    
+    // Optimistically remove the alert from the UI
+    const alertIndex = this.alerts.findIndex(a => a.id === alertId);
+    if (alertIndex !== -1) {
+      this.alerts.splice(alertIndex, 1);
+      // Update pagination
+      this.alertPagination.totalItems = Math.max(0, this.alertPagination.totalItems - 1);
+      this.alertPagination.totalPages = Math.ceil(this.alertPagination.totalItems / this.alertPagination.itemsPerPage);
+      this.stats.activeAlerts = this.alertPagination.totalItems;
+    }
+    
+    // Call the backend to resolve the alert
     this.turbineService.resolveAlert(alertId).subscribe({
-      next: () => this.loadAlerts(),
-      error: (err) => console.error('Failed to resolve alert', err)
+      next: () => {
+        console.log('Alert resolved successfully');
+        // Reload alerts to ensure consistency with backend
+        this.loadAlerts();
+        // Also reload dashboard stats if on dashboard page
+        if (this.currentPage === 'dashboard') {
+          this.loadData();
+        }
+      },
+      error: (err) => {
+        console.error('Failed to resolve alert', err);
+        // Reload alerts to restore the original state if there was an error
+        this.loadAlerts();
+        // Show error message to user
+        const errorMessage = err.status === 404 
+          ? 'Alert not found. It may have already been resolved.' 
+          : 'Failed to resolve alert. Please try again.';
+        window.alert(errorMessage);
+      }
     });
   }
   
@@ -325,8 +368,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.currentPage === 'dashboard') {
       // Dashboard: count healthy turbines (ACTIVE without alerts)
       const activeTurbines = this.turbines.filter(t => t.status === 'ACTIVE');
-      const turbinesWithAlerts = new Set(this.alerts.map(a => a.turbine?.id).filter(id => id !== undefined));
-      return activeTurbines.filter(t => !turbinesWithAlerts.has(t.id)).length;
+      const turbinesWithAlerts = new Set(this.alerts.map(a => a.turbine?.id).filter((id): id is number => id !== undefined));
+      return activeTurbines.filter(t => t.id !== undefined && !turbinesWithAlerts.has(t.id)).length;
     } else if (this.currentPage === 'analytics') {
       // Analytics: count all ACTIVE turbines
       return this.turbines.filter(t => t.status === 'ACTIVE').length;
@@ -576,24 +619,72 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
                       };
                     });
                     
+                    // Calculate min/max values from actual graph data for proper Y-axis scaling
+                    if (this.graphData.length > 0) {
+                      const generations = this.graphData.map(d => d.generation).filter(g => g > 0);
+                      const efficiencies = this.graphData.map(d => d.efficiency).filter(e => e > 0);
+                      
+                      if (generations.length > 0) {
+                        this.maxGeneration = Math.max(...generations);
+                        this.minGeneration = Math.min(...generations);
+                        // Add padding: 10% above max, ensure min is at least 0
+                        const generationRange = this.maxGeneration - this.minGeneration;
+                        this.maxGeneration = this.maxGeneration + (generationRange * 0.1);
+                        this.minGeneration = Math.max(0, this.minGeneration - (generationRange * 0.1));
+                      } else {
+                        this.maxGeneration = 1000;
+                        this.minGeneration = 0;
+                      }
+                      
+                      if (efficiencies.length > 0) {
+                        this.maxEfficiency = Math.max(...efficiencies);
+                        this.minEfficiency = Math.min(...efficiencies);
+                        // Add padding: 10% above max, ensure min is at least 0
+                        const efficiencyRange = this.maxEfficiency - this.minEfficiency;
+                        this.maxEfficiency = Math.min(100, this.maxEfficiency + (efficiencyRange * 0.1));
+                        this.minEfficiency = Math.max(0, this.minEfficiency - (efficiencyRange * 0.1));
+                      } else {
+                        this.maxEfficiency = 100;
+                        this.minEfficiency = 0;
+                      }
+                    } else {
+                      // Reset to defaults if no data
+                      this.maxGeneration = 1000;
+                      this.minGeneration = 0;
+                      this.maxEfficiency = 100;
+                      this.minEfficiency = 0;
+                    }
+                    
                   } else {
                     this.graphData = [];
+                    this.maxGeneration = 1000;
+                    this.minGeneration = 0;
+                    this.maxEfficiency = 100;
+                    this.minEfficiency = 0;
                   }
                 } catch (error) {
                   console.error('Error processing graph data:', error);
                   this.graphData = [];
+                  this.maxGeneration = 1000;
+                  this.minGeneration = 0;
+                  this.maxEfficiency = 100;
+                  this.minEfficiency = 0;
                 }
               },
               error: (err) => {
                 console.error('Error loading graph data:', err);
                 this.graphData = [];
+                this.maxGeneration = 1000;
+                this.minGeneration = 0;
+                this.maxEfficiency = 100;
+                this.minEfficiency = 0;
               }
             });
   }
   
   getGenerationY(generation: number): number {
-    if (this.graphData.length === 0) return 345;
-    if (generation === 0 || this.maxGeneration === 0) return 345;
+    if (this.graphData.length === 0) return 340;
+    if (generation === 0 || this.maxGeneration === 0) return 340;
     if (this.maxGeneration === this.minGeneration && this.maxGeneration > 0) {
       // Single data point: place at top label position (y=25)
       return 25;
@@ -601,14 +692,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     const range = this.maxGeneration - this.minGeneration || 1;
     const normalized = (generation - this.minGeneration) / range;
     // Y-axis labels are at: y=25 (top, index 0), y=105, y=185, y=265, y=345 (bottom, index 4)
-    // Chart area: y=25 (top) to y=345 (bottom) = 320 pixels
-    // Invert: max value (normalized=1) should be at y=25, min (normalized=0) at y=345
-    return 345 - (normalized * 320);
+    // Chart area: y=25 (top) to y=340 (bottom) = 315 pixels
+    // Invert: max value (normalized=1) should be at y=25, min (normalized=0) at y=340
+    return 340 - (normalized * 315);
   }
   
   getEfficiencyY(efficiency: number): number {
-    if (this.graphData.length === 0) return 320;
-    if (efficiency === 0 || this.maxEfficiency === 0) return 320;
+    if (this.graphData.length === 0) return 340;
+    if (efficiency === 0 || this.maxEfficiency === 0) return 340;
     if (this.maxEfficiency === this.minEfficiency && this.maxEfficiency > 0) {
       // Single data point: place at top label position (y=25)
       return 25;
@@ -616,9 +707,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     const range = this.maxEfficiency - this.minEfficiency || 1;
     const normalized = (efficiency - this.minEfficiency) / range;
     // Y-axis labels are at: y=25 (top, index 0), y=105, y=185, y=265, y=345 (bottom, index 4)
-    // Chart area: y=25 (top) to y=345 (bottom) = 320 pixels
-    // Invert: max value (normalized=1) should be at y=25, min (normalized=0) at y=345
-    return 345 - (normalized * 320);
+    // Chart area: y=25 (top) to y=340 (bottom) = 315 pixels
+    // Invert: max value (normalized=1) should be at y=25, min (normalized=0) at y=340
+    return 340 - (normalized * 315);
   }
   
   getGenerationPath(): string {
@@ -664,13 +755,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     if (validPoints.length === 1) {
       // Single point: draw a small area
       const p = validPoints[0];
-      return `${path} L ${p.x} 345 L ${p.x - 10} 345 Z`;
+      return `${path} L ${p.x} 340 L ${p.x - 10} 340 Z`;
     }
     
-    // Multiple points: close the area (bottom of chart is y=345)
+    // Multiple points: close the area (bottom of chart is y=340)
     const firstX = validPoints[0].x;
     const lastX = validPoints[validPoints.length - 1].x;
-    return `${path} L ${lastX} 345 L ${firstX} 345 Z`;
+    return `${path} L ${lastX} 340 L ${firstX} 340 Z`;
   }
   
   getEfficiencyPath(): string {
@@ -716,13 +807,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     if (validPoints.length === 1) {
       // Single point: draw a small area
       const p = validPoints[0];
-      return `${path} L ${p.x} 345 L ${p.x - 10} 345 Z`;
+      return `${path} L ${p.x} 340 L ${p.x - 10} 340 Z`;
     }
     
-    // Multiple points: close the area (bottom of chart is y=345)
+    // Multiple points: close the area (bottom of chart is y=340)
     const firstX = validPoints[0].x;
     const lastX = validPoints[validPoints.length - 1].x;
-    return `${path} L ${lastX} 345 L ${firstX} 345 Z`;
+    return `${path} L ${lastX} 340 L ${firstX} 340 Z`;
   }
   
   getChartX(index: number): number {

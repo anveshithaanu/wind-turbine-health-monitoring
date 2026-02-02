@@ -1038,6 +1038,18 @@ body.light-theme {
   box-shadow: var(--shadow-sm);
   position: relative;
   min-height: 400px;
+  overflow: visible;
+}
+
+.line-chart-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.x-axis-labels text {
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .chart-container-modern canvas {
