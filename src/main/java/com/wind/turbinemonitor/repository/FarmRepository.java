@@ -12,3 +12,4 @@ public interface FarmRepository extends JpaRepository<Farm, Long> {
     List<Farm> findByRegion(String region);
 }
 
+

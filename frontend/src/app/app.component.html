@@ -1,41 +1,61 @@
 <div class="app-container">
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <span class="logo-icon">⚡</span>
-      <span class="logo-text">Wind Turbine</span>
+  <!-- Unique Floating Header -->
+  <div class="floating-header">
+    <div class="header-content-wrapper">
+      <div class="logo-section">
+        <div class="logo-circle">
+          <svg class="wind-turbine-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="45" y="30" width="10" height="60" fill="currentColor" opacity="0.8"/>
+            <ellipse cx="50" cy="90" rx="15" ry="8" fill="currentColor" opacity="0.6"/>
+            <line x1="50" y1="30" x2="30" y2="15" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <line x1="50" y1="30" x2="70" y2="15" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <line x1="50" y1="30" x2="50" y2="5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="50" cy="30" r="4" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="title-section">
+          <h1>Wind Turbine Health Monitor</h1>
+          <p>Monitor and manage your wind turbine operations efficiently</p>
+        </div>
+      </div>
     </div>
-    <nav class="sidebar-nav">
-      <a class="nav-item" [class.active]="currentPage === 'dashboard'" (click)="navigateToPage('dashboard')">
-        <span class="nav-icon">📊</span>
-        <span>Dashboard</span>
-      </a>
-      <a class="nav-item" [class.active]="currentPage === 'alerts'" (click)="navigateToPage('alerts')">
-        <span class="nav-icon">🔔</span>
-        <span>Alerts</span>
-      </a>
-      <a class="nav-item" [class.active]="currentPage === 'analytics'" (click)="navigateToPage('analytics')">
-        <span class="nav-icon">📈</span>
-        <span>Analytics</span>
-      </a>
-      <a class="nav-item" [class.active]="currentPage === 'turbines'" (click)="navigateToPage('turbines')">
-        <span class="nav-icon">🔧</span>
-        <span>Turbines</span>
-      </a>
-    </nav>
   </div>
 
-  <div class="main-content">
-    <div class="content-header">
-      <div>
-        <h1>Wind Turbine Health Monitor</h1>
-        <p>Real-time turbine status across your fleet</p>
-      </div>
-      <button class="theme-btn" (click)="toggleTheme()">
-        <span *ngIf="isDarkTheme">🌙</span>
-        <span *ngIf="!isDarkTheme">☀️</span>
-        <span>{{ isDarkTheme ? 'Dark' : 'Light' }}</span>
+  <!-- Unique Navigation Pills -->
+  <div class="nav-pills-container">
+    <div class="nav-pills">
+      <button 
+        class="nav-pill" 
+        [class.active]="currentPage === 'dashboard'" 
+        (click)="navigateToPage('dashboard')">
+        <span class="pill-icon">📊</span>
+        <span class="pill-text">Dashboard</span>
+      </button>
+      <button 
+        class="nav-pill" 
+        [class.active]="currentPage === 'turbines'" 
+        (click)="navigateToPage('turbines')">
+        <span class="pill-icon">⚙️</span>
+        <span class="pill-text">Turbines</span>
+      </button>
+      <button 
+        class="nav-pill" 
+        [class.active]="currentPage === 'analytics'" 
+        (click)="navigateToPage('analytics')">
+        <span class="pill-icon">📈</span>
+        <span class="pill-text">Analytics</span>
+      </button>
+      <button 
+        class="nav-pill" 
+        [class.active]="currentPage === 'alerts'" 
+        (click)="navigateToPage('alerts')">
+        <span class="pill-icon">🔔</span>
+        <span class="pill-text">Alerts</span>
       </button>
     </div>
+  </div>
+
+  <div class="main-content" [style.display]="'block'">
 
     <div *ngIf="currentPage === 'dashboard'" class="dashboard">
       <div class="section">
@@ -62,25 +82,65 @@
       <div class="section">
         <h3>At a glance</h3>
         <div class="stats-grid">
-          <div class="stat-card healthy">
-            <div class="stat-value">{{ getHealthyCount() }}</div>
-            <div class="stat-label">Healthy</div>
+          <div class="stat-card-modern healthy">
+            <div class="stat-card-inner">
+              <div class="stat-icon-wrapper healthy">
+                <span class="stat-icon">✓</span>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">{{ getHealthyCount() }}</div>
+                <div class="stat-label">Healthy</div>
+              </div>
+              <div class="stat-accent-line healthy"></div>
+            </div>
           </div>
-          <div class="stat-card warning">
-            <div class="stat-value">{{ getWarningCount() }}</div>
-            <div class="stat-label">Warning</div>
+          <div class="stat-card-modern warning">
+            <div class="stat-card-inner">
+              <div class="stat-icon-wrapper warning">
+                <span class="stat-icon">⚠</span>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">{{ getWarningCount() }}</div>
+                <div class="stat-label">Warning</div>
+              </div>
+              <div class="stat-accent-line warning"></div>
+            </div>
           </div>
-          <div class="stat-card critical">
-            <div class="stat-value">{{ getCriticalCount() }}</div>
-            <div class="stat-label">Critical</div>
+          <div class="stat-card-modern critical">
+            <div class="stat-card-inner">
+              <div class="stat-icon-wrapper critical">
+                <span class="stat-icon">!</span>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">{{ getCriticalCount() }}</div>
+                <div class="stat-label">Critical</div>
+              </div>
+              <div class="stat-accent-line critical"></div>
+            </div>
           </div>
-          <div class="stat-card offline">
-            <div class="stat-value">{{ getOfflineCount() }}</div>
-            <div class="stat-label">Offline</div>
+          <div class="stat-card-modern offline">
+            <div class="stat-card-inner">
+              <div class="stat-icon-wrapper offline">
+                <span class="stat-icon">○</span>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">{{ getOfflineCount() }}</div>
+                <div class="stat-label">Offline</div>
+              </div>
+              <div class="stat-accent-line offline"></div>
+            </div>
           </div>
-          <div class="stat-card total">
-            <div class="stat-value">{{ stats.totalTurbines }}</div>
-            <div class="stat-label">Total turbines</div>
+          <div class="stat-card-modern total">
+            <div class="stat-card-inner">
+              <div class="stat-icon-wrapper total">
+                <span class="stat-icon">⚡</span>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">{{ stats.totalTurbines }}</div>
+                <div class="stat-label">Total Turbines</div>
+              </div>
+              <div class="stat-accent-line total"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -89,17 +149,17 @@
         <h3>Health status distribution</h3>
         <p>Share of turbines by status</p>
         <div class="chart-placeholder">
-          <div class="donut-chart" [style.background]="getDonutChartGradient()">
-            <div class="chart-center">
-              <div class="chart-total">{{ turbines.length }}</div>
-              <div class="chart-label">Total</div>
-            </div>
-          </div>
-          <div class="chart-legend">
-            <div class="legend-item"><span class="legend-color healthy"></span> Healthy</div>
-            <div class="legend-item"><span class="legend-color warning"></span> Warning</div>
-            <div class="legend-item"><span class="legend-color critical"></span> Critical</div>
-            <div class="legend-item"><span class="legend-color offline"></span> Offline</div>
+          <div class="donut-chart-wrapper">
+            <svg viewBox="0 0 200 200" class="donut-chart">
+              <path *ngIf="getDonutChartPath('healthy') !== ''" [attr.d]="getDonutChartPath('healthy')" [attr.fill]="getDonutChartColor('healthy')" />
+              <path *ngIf="getDonutChartPath('warning') !== ''" [attr.d]="getDonutChartPath('warning')" [attr.fill]="getDonutChartColor('warning')" />
+              <path *ngIf="getDonutChartPath('critical') !== ''" [attr.d]="getDonutChartPath('critical')" [attr.fill]="getDonutChartColor('critical')" />
+              <path *ngIf="getDonutChartPath('offline') !== ''" [attr.d]="getDonutChartPath('offline')" [attr.fill]="getDonutChartColor('offline')" />
+              <!-- Show empty state ring when no turbines -->
+              <path *ngIf="turbines.length === 0" [attr.d]="getDonutChartPath('offline')" fill="#e2e8f0" opacity="0.5" />
+              <text x="100" y="95" text-anchor="middle" class="donut-center-text-large">{{ getHealthyCount() + getWarningCount() + getCriticalCount() + getOfflineCount() }}</text>
+              <text x="100" y="115" text-anchor="middle" class="donut-center-text-small">Total</text>
+            </svg>
           </div>
         </div>
       </div>
@@ -282,114 +342,95 @@
         </div>
       </div>
 
-      <div class="section" *ngIf="graphData.length > 0">
+      <div class="section">
         <h3>Daily generation & efficiency</h3>
         <p>Trends over time</p>
         <div class="analytics-chart">
-          <div class="chart-legend">
-            <div class="legend-item"><span class="legend-color" style="background: #4caf50;"></span> Total generation (kWh)</div>
-            <div class="legend-item"><span class="legend-color" style="background: #2196f3;"></span> Avg efficiency (%)</div>
-          </div>
-          <div class="chart-container">
-            <svg class="line-chart" viewBox="0 0 1000 400" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="generationGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" style="stop-color:#4caf50;stop-opacity:0.8" />
-                  <stop offset="100%" style="stop-color:#4caf50;stop-opacity:0.1" />
-                </linearGradient>
-                <linearGradient id="efficiencyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" style="stop-color:#2196f3;stop-opacity:0.8" />
-                  <stop offset="100%" style="stop-color:#2196f3;stop-opacity:0.1" />
-                </linearGradient>
-              </defs>
-              
-              <g class="chart-grid">
-                <line *ngFor="let i of [0,1,2,3,4]" 
-                      [attr.x1]="0" 
-                      [attr.y1]="i * 80 + 20" 
-                      [attr.x2]="1000" 
-                      [attr.y2]="i * 80 + 20" 
-                      stroke="var(--border-color)" 
-                      stroke-width="0.5" 
-                      stroke-dasharray="2,2" 
-                      opacity="0.3"/>
+          <div class="chart-container-modern">
+            <svg viewBox="0 0 1000 370" class="line-chart-svg">
+              <!-- Grid lines -->
+              <g class="grid-lines">
+                <line x1="50" y1="25" x2="950" y2="25" stroke="#e2e8f0" stroke-width="1" opacity="0.5"/>
+                <line x1="50" y1="105" x2="950" y2="105" stroke="#e2e8f0" stroke-width="1" opacity="0.5"/>
+                <line x1="50" y1="185" x2="950" y2="185" stroke="#e2e8f0" stroke-width="1" opacity="0.5"/>
+                <line x1="50" y1="265" x2="950" y2="265" stroke="#e2e8f0" stroke-width="1" opacity="0.5"/>
+                <line x1="50" y1="345" x2="950" y2="345" stroke="#e2e8f0" stroke-width="1" opacity="0.5"/>
               </g>
               
-              <g class="chart-labels">
-                <text *ngFor="let i of [0,1,2,3,4]; let idx = index" 
-                      [attr.x]="10" 
-                      [attr.y]="i * 80 + 25" 
-                      fill="var(--text-secondary)" 
-                      font-size="12">
-                  {{ getGenerationYLabel(idx) }}
-                </text>
-                <text *ngFor="let i of [0,1,2,3,4]; let idx = index" 
-                      [attr.x]="980" 
-                      [attr.y]="i * 80 + 25" 
-                      fill="var(--text-secondary)" 
-                      font-size="12" 
-                      text-anchor="end">
-                  {{ getEfficiencyYLabel(idx) }}%
-                </text>
+              <!-- Y-axis labels (Generation) -->
+              <g class="y-axis-labels generation-labels">
+                <text x="45" y="30" text-anchor="end" class="axis-label">{{ getGenerationYLabel(0) }}</text>
+                <text x="45" y="110" text-anchor="end" class="axis-label">{{ getGenerationYLabel(1) }}</text>
+                <text x="45" y="190" text-anchor="end" class="axis-label">{{ getGenerationYLabel(2) }}</text>
+                <text x="45" y="270" text-anchor="end" class="axis-label">{{ getGenerationYLabel(3) }}</text>
+                <text x="45" y="350" text-anchor="end" class="axis-label">{{ getGenerationYLabel(4) }}</text>
               </g>
               
-              <g class="chart-x-axis">
+              <!-- Y-axis labels (Efficiency) -->
+              <g class="y-axis-labels efficiency-labels">
+                <text x="955" y="30" text-anchor="start" class="axis-label efficiency">{{ getEfficiencyYLabel(0) }}</text>
+                <text x="955" y="110" text-anchor="start" class="axis-label efficiency">{{ getEfficiencyYLabel(1) }}</text>
+                <text x="955" y="190" text-anchor="start" class="axis-label efficiency">{{ getEfficiencyYLabel(2) }}</text>
+                <text x="955" y="270" text-anchor="start" class="axis-label efficiency">{{ getEfficiencyYLabel(3) }}</text>
+                <text x="955" y="350" text-anchor="start" class="axis-label efficiency">{{ getEfficiencyYLabel(4) }}</text>
+              </g>
+              
+              <!-- Generation area and line -->
+              <g class="generation-chart">
+                <path *ngIf="graphData.length > 0" [attr.d]="getGenerationAreaPath()" fill="rgba(16, 185, 129, 0.1)" class="area-path"/>
+                <path *ngIf="graphData.length > 0" [attr.d]="getGenerationPath()" stroke="#10b981" stroke-width="3" fill="none" class="line-path"/>
+                <g class="generation-points">
+                  <ng-container *ngFor="let data of graphData; let i = index">
+                    <circle *ngIf="data.generation > 0"
+                            [attr.cx]="getChartX(i)" 
+                            [attr.cy]="getGenerationY(data.generation)" 
+                            r="4" 
+                            fill="#10b981" 
+                            stroke="#ffffff" 
+                            stroke-width="2"/>
+                  </ng-container>
+                </g>
+              </g>
+              
+              <!-- Efficiency area and line -->
+              <g class="efficiency-chart">
+                <path *ngIf="graphData.length > 0" [attr.d]="getEfficiencyAreaPath()" fill="rgba(14, 165, 233, 0.1)" class="area-path"/>
+                <path *ngIf="graphData.length > 0" [attr.d]="getEfficiencyPath()" stroke="#0ea5e9" stroke-width="3" fill="none" class="line-path"/>
+                <g class="efficiency-points">
+                  <ng-container *ngFor="let data of graphData; let i = index">
+                    <circle *ngIf="data.efficiency > 0"
+                            [attr.cx]="getChartX(i)" 
+                            [attr.cy]="getEfficiencyY(data.efficiency)" 
+                            r="4" 
+                            fill="#0ea5e9" 
+                            stroke="#ffffff" 
+                            stroke-width="2"/>
+                  </ng-container>
+                </g>
+              </g>
+              
+              <!-- X-axis labels -->
+              <g class="x-axis-labels">
                 <text *ngFor="let data of graphData; let i = index" 
                       [attr.x]="getChartX(i)" 
-                      y="380" 
-                      fill="var(--text-secondary)" 
-                      font-size="10" 
-                      text-anchor="middle"
-                      [attr.transform]="'rotate(-45, ' + getChartX(i) + ', 380)'">
-                  {{ data.date }}
+                      y="365" 
+                      text-anchor="middle" 
+                      class="axis-label x-axis"
+                      [attr.transform]="'rotate(-45 ' + getChartX(i) + ' 365)'">
+                  {{ data.displayDate || data.date }}
                 </text>
               </g>
               
-              <path class="line-path generation-line" 
-                    [attr.d]="getGenerationPath()" 
-                    fill="none" 
-                    stroke="#4caf50" 
-                    stroke-width="3" 
-                    stroke-linecap="round" 
-                    stroke-linejoin="round"/>
-              
-              <path class="area-path generation-area" 
-                    [attr.d]="getGenerationAreaPath()" 
-                    fill="url(#generationGradient)"/>
-              
-              <path class="line-path efficiency-line" 
-                    [attr.d]="getEfficiencyPath()" 
-                    fill="none" 
-                    stroke="#2196f3" 
-                    stroke-width="3" 
-                    stroke-linecap="round" 
-                    stroke-linejoin="round"/>
-              
-              <path class="area-path efficiency-area" 
-                    [attr.d]="getEfficiencyAreaPath()" 
-                    fill="url(#efficiencyGradient)"/>
-              
-              <g class="chart-points">
-                <ng-container *ngFor="let data of graphData; let i = index">
-                  <circle *ngIf="data.generation > 0"
-                          [attr.cx]="getChartX(i)" 
-                          [attr.cy]="getGenerationY(data.generation)" 
-                          r="4" 
-                          fill="#4caf50" 
-                          stroke="var(--bg-primary)" 
-                          stroke-width="2"
-                          class="chart-point generation-point"/>
-                </ng-container>
-                <ng-container *ngFor="let data of graphData; let i = index">
-                  <circle *ngIf="data.efficiency > 0"
-                          [attr.cx]="getChartX(i)" 
-                          [attr.cy]="getEfficiencyY(data.efficiency)" 
-                          r="4" 
-                          fill="#2196f3" 
-                          stroke="var(--bg-primary)" 
-                          stroke-width="2"
-                          class="chart-point efficiency-point"/>
-                </ng-container>
+              <!-- Legend -->
+              <g class="chart-legend">
+                <g class="legend-item">
+                  <line x1="60" y1="20" x2="80" y2="20" stroke="#10b981" stroke-width="3"/>
+                  <text x="85" y="25" class="legend-text">Total Generation (kWh)</text>
+                </g>
+                <g class="legend-item">
+                  <line x1="60" y1="40" x2="80" y2="40" stroke="#0ea5e9" stroke-width="3"/>
+                  <text x="85" y="45" class="legend-text">Avg Efficiency (%)</text>
+                </g>
               </g>
             </svg>
           </div>

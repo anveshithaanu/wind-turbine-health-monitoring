@@ -1,18 +1,34 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { TurbineService } from './services/turbine.service';
 import { Turbine, Farm, HealthAlert } from './models/turbine.model';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterOutlet],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    RouterOutlet,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatInputModule
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   turbines: Turbine[] = [];
   farms: Farm[] = [];
   alerts: HealthAlert[] = [];
@@ -20,6 +36,7 @@ export class AppComponent implements OnInit {
   error: string | null = null;
   
   currentPage: string = 'dashboard';
+  selectedTabIndex: number = 0;
   
   dashboardFilters = {
     farm: '',
@@ -48,7 +65,7 @@ export class AppComponent implements OnInit {
   selectedTurbine: Turbine | null = null;
   showDetails: boolean = false;
   
-  isDarkTheme: boolean = true;
+  isDarkTheme: boolean = false;
   
   pagination = {
     currentPage: 0,
@@ -352,35 +369,94 @@ export class AppComponent implements OnInit {
     return (this.getOfflineCount() / this.turbines.length) * 100;
   }
   
-  getDonutChartGradient(): string {
-    if (this.turbines.length === 0) return 'conic-gradient(#9e9e9e 0% 100%)';
+
+  getDonutChartPath(status: string): string {
+    const total = this.turbines.length;
+    const centerX = 100;
+    const centerY = 100;
+    const radius = 80;
+    const innerRadius = 56;
     
-    const healthy = this.getHealthyPercent();
-    const warning = this.getWarningPercent();
-    const critical = this.getCriticalPercent();
+    // If no turbines, show a full empty ring
+    if (total === 0) {
+      if (status === 'offline') {
+        // Show a full gray ring for empty state
+        const startAngleRad = (-90) * Math.PI / 180;
+        const endAngleRad = (270) * Math.PI / 180;
+        const x1 = centerX + radius * Math.cos(startAngleRad);
+        const y1 = centerY + radius * Math.sin(startAngleRad);
+        const x2 = centerX + radius * Math.cos(endAngleRad);
+        const y2 = centerY + radius * Math.sin(endAngleRad);
+        const x3 = centerX + innerRadius * Math.cos(endAngleRad);
+        const y3 = centerY + innerRadius * Math.sin(endAngleRad);
+        const x4 = centerX + innerRadius * Math.cos(startAngleRad);
+        const y4 = centerY + innerRadius * Math.sin(startAngleRad);
+        return `M ${x1} ${y1} A ${radius} ${radius} 0 1 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 1 0 ${x4} ${y4} Z`;
+      }
+      return '';
+    }
+    
+    const healthy = this.getHealthyCount();
+    const warning = this.getWarningCount();
+    const critical = this.getCriticalCount();
     const offline = this.getOfflineCount();
     
-    let current = 0;
-    const parts: string[] = [];
+    let startAngle = 0;
+    let endAngle = 0;
     
-    if (healthy > 0) {
-      parts.push(`#4caf50 ${current}% ${current + healthy}%`);
-      current += healthy;
-    }
-    if (warning > 0) {
-      parts.push(`#ff9800 ${current}% ${current + warning}%`);
-      current += warning;
-    }
-    if (critical > 0) {
-      parts.push(`#f44336 ${current}% ${current + critical}%`);
-      current += critical;
-    }
-    if (offline > 0) {
-      const offlinePercent = (offline / this.turbines.length) * 100;
-      parts.push(`#9e9e9e ${current}% ${current + offlinePercent}%`);
+    switch(status) {
+      case 'healthy':
+        if (healthy === 0) return '';
+        startAngle = 0;
+        endAngle = (healthy / total) * 360;
+        break;
+      case 'warning':
+        if (warning === 0) return '';
+        startAngle = (healthy / total) * 360;
+        endAngle = startAngle + (warning / total) * 360;
+        break;
+      case 'critical':
+        if (critical === 0) return '';
+        startAngle = ((healthy + warning) / total) * 360;
+        endAngle = startAngle + (critical / total) * 360;
+        break;
+      case 'offline':
+        if (offline === 0) return '';
+        startAngle = ((healthy + warning + critical) / total) * 360;
+        endAngle = startAngle + (offline / total) * 360;
+        break;
+      default:
+        return '';
     }
     
-    return `conic-gradient(${parts.join(', ')})`;
+    if (endAngle - startAngle <= 0) return '';
+    
+    const startAngleRad = (startAngle - 90) * Math.PI / 180;
+    const endAngleRad = (endAngle - 90) * Math.PI / 180;
+    
+    const x1 = centerX + radius * Math.cos(startAngleRad);
+    const y1 = centerY + radius * Math.sin(startAngleRad);
+    const x2 = centerX + radius * Math.cos(endAngleRad);
+    const y2 = centerY + radius * Math.sin(endAngleRad);
+    
+    const x3 = centerX + innerRadius * Math.cos(endAngleRad);
+    const y3 = centerY + innerRadius * Math.sin(endAngleRad);
+    const x4 = centerX + innerRadius * Math.cos(startAngleRad);
+    const y4 = centerY + innerRadius * Math.sin(startAngleRad);
+    
+    const largeArc = (endAngle - startAngle) > 180 ? 1 : 0;
+    
+    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+  }
+  
+  getDonutChartColor(status: string): string {
+    switch(status) {
+      case 'healthy': return '#10b981';
+      case 'warning': return '#f59e0b';
+      case 'critical': return '#ef4444';
+      case 'offline': return '#6b7280';
+      default: return '#9e9e9e';
+    }
   }
   
   formatDate(dateString?: string): string {
@@ -482,71 +558,37 @@ export class AppComponent implements OnInit {
       }
     });
     
-    // Load graph data from backend (all calculations done in backend)
-    this.turbineService.getGraphData(startTime, endTime, farm, undefined).subscribe({
-      next: (graphData) => {
-        try {
-          // Backend returns pre-calculated graph data
-          if (graphData && Array.isArray(graphData)) {
-            this.graphData = graphData.map(data => ({
-              date: data.date ? new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '',
-              fullDate: data.date || '',
-              generation: data.generation || 0,
-              efficiency: data.efficiency || 0
-            }));
-            
-            // Calculate Y-axis ranges for graph display
-            if (this.graphData.length > 0) {
-              const generations = this.graphData.map(d => d.generation).filter(g => g > 0);
-              const efficiencies = this.graphData.map(d => d.efficiency).filter(e => e > 0);
-              
-              this.maxGeneration = generations.length > 0 ? Math.max(...generations) : 0;
-              this.minGeneration = generations.length > 0 ? Math.min(...generations) : 0;
-              this.maxEfficiency = efficiencies.length > 0 ? Math.max(...efficiencies) : 0;
-              this.minEfficiency = efficiencies.length > 0 ? Math.min(...efficiencies) : 0;
-              
-              // Adjust ranges for single data points
-              if (this.maxGeneration > 0 && this.maxGeneration === this.minGeneration) {
-                this.minGeneration = 0;
+            // Load graph data from backend (all calculations done in backend)
+            this.turbineService.getGraphData(startTime, endTime, farm, undefined).subscribe({
+              next: (graphData) => {
+                try {
+                  // Backend returns pre-calculated graph data
+                  if (graphData && Array.isArray(graphData)) {
+                    this.graphData = graphData.map(data => {
+                      const dateStr = data.date || '';
+                      const dateObj = dateStr ? new Date(dateStr) : new Date();
+                      return {
+                        date: dateStr,
+                        displayDate: dateStr ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '',
+                        fullDate: dateStr,
+                        generation: data.generation || 0,
+                        efficiency: data.efficiency || 0
+                      };
+                    });
+                    
+                  } else {
+                    this.graphData = [];
+                  }
+                } catch (error) {
+                  console.error('Error processing graph data:', error);
+                  this.graphData = [];
+                }
+              },
+              error: (err) => {
+                console.error('Error loading graph data:', err);
+                this.graphData = [];
               }
-              if (this.maxEfficiency > 0 && this.maxEfficiency === this.minEfficiency) {
-                this.minEfficiency = 0;
-              }
-              
-              // Ensure min is not negative
-              if (this.minGeneration < 0) this.minGeneration = 0;
-              if (this.minEfficiency < 0) this.minEfficiency = 0;
-            } else {
-              this.maxGeneration = 0;
-              this.minGeneration = 0;
-              this.maxEfficiency = 0;
-              this.minEfficiency = 0;
-            }
-          } else {
-            this.graphData = [];
-            this.maxGeneration = 0;
-            this.minGeneration = 0;
-            this.maxEfficiency = 0;
-            this.minEfficiency = 0;
-          }
-        } catch (error) {
-          console.error('Error processing graph data:', error);
-          this.graphData = [];
-          this.maxGeneration = 0;
-          this.minGeneration = 0;
-          this.maxEfficiency = 0;
-          this.minEfficiency = 0;
-        }
-      },
-      error: (err) => {
-        console.error('Error loading graph data:', err);
-        this.graphData = [];
-        this.maxGeneration = 0;
-        this.minGeneration = 0;
-        this.maxEfficiency = 0;
-        this.minEfficiency = 0;
-      }
-    });
+            });
   }
   
   getGenerationY(generation: number): number {
@@ -772,9 +814,8 @@ export class AppComponent implements OnInit {
     try {
       const savedTheme = localStorage.getItem('theme');
       this.loadAvgEfficiency(); // Load average efficiency on component init
-      if (savedTheme) {
-        this.isDarkTheme = savedTheme === 'dark';
-      }
+      // Always use light theme
+      this.isDarkTheme = false;
       this.applyTheme();
       this.loadData();
       setTimeout(() => {
@@ -786,9 +827,22 @@ export class AppComponent implements OnInit {
       console.error('Error in ngOnInit:', error);
     }
   }
+
+  ngAfterViewInit(): void {
+    // Charts will be initialized when data is loaded
+  }
+
+  ngOnDestroy(): void {
+  }
   
+
   navigateToPage(page: string): void {
     this.currentPage = page;
+    const tabLabels = ['dashboard', 'turbines', 'analytics', 'alerts'];
+    const index = tabLabels.indexOf(page);
+    if (index >= 0) {
+      this.selectedTabIndex = index;
+    }
     this.resetPagination();
     this.selectedTurbine = null;
     this.showDetails = false;
@@ -832,13 +886,9 @@ export class AppComponent implements OnInit {
   }
   
   applyTheme(): void {
-    if (this.isDarkTheme) {
-      document.body.classList.remove('light-theme');
-      document.body.classList.add('dark-theme');
-    } else {
-      document.body.classList.remove('dark-theme');
-      document.body.classList.add('light-theme');
-    }
+    // Always use light theme
+    document.body.classList.remove('dark-theme');
+    document.body.classList.add('light-theme');
   }
   
   isInvalidPeriod(): boolean {

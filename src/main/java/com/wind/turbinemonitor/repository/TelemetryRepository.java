@@ -33,3 +33,4 @@ public interface TelemetryRepository extends JpaRepository<Telemetry, Long> {
     );
 }
 
+

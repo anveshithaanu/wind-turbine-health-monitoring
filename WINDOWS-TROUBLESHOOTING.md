@@ -170,3 +170,4 @@ When working correctly:
 - **Windows path issues** - Docker on Windows can have path resolution problems
 - **Use WSL2** - Better Docker support on Windows
 
+
