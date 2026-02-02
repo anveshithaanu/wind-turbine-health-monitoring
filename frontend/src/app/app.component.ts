@@ -379,12 +379,24 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   
   getWarningCount(): number {
     if (this.currentPage !== 'dashboard') return 0;
-    return this.alerts.filter(a => a.severity === 'MEDIUM' || a.severity === 'LOW').length;
+    // Count ACTIVE turbines that have MEDIUM or LOW severity alerts (but not critical)
+    const activeTurbines = this.turbines.filter(t => t.status === 'ACTIVE');
+    const criticalAlerts = this.alerts.filter(a => a.severity === 'CRITICAL' || a.severity === 'HIGH');
+    const turbinesWithCritical = new Set(criticalAlerts.map(a => a.turbine?.id).filter((id): id is number => id !== undefined));
+    const warningAlerts = this.alerts.filter(a => (a.severity === 'MEDIUM' || a.severity === 'LOW') && 
+                                                   a.turbine?.id !== undefined && 
+                                                   !turbinesWithCritical.has(a.turbine.id));
+    const turbinesWithWarning = new Set(warningAlerts.map(a => a.turbine?.id).filter((id): id is number => id !== undefined));
+    return turbinesWithWarning.size;
   }
   
   getCriticalCount(): number {
     if (this.currentPage !== 'dashboard') return 0;
-    return this.alerts.filter(a => a.severity === 'CRITICAL' || a.severity === 'HIGH').length;
+    // Count ACTIVE turbines that have CRITICAL or HIGH severity alerts
+    const activeTurbines = this.turbines.filter(t => t.status === 'ACTIVE');
+    const criticalAlerts = this.alerts.filter(a => a.severity === 'CRITICAL' || a.severity === 'HIGH');
+    const turbinesWithCritical = new Set(criticalAlerts.map(a => a.turbine?.id).filter((id): id is number => id !== undefined));
+    return turbinesWithCritical.size;
   }
   
   getOfflineCount(): number {
@@ -446,36 +458,66 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     
     let startAngle = 0;
     let endAngle = 0;
+    let angleRange = 0;
     
     switch(status) {
       case 'healthy':
         if (healthy === 0) return '';
-        startAngle = 0;
-        endAngle = (healthy / total) * 360;
+        startAngle = -90; // Start from top
+        angleRange = (healthy / total) * 360;
+        endAngle = startAngle + angleRange;
         break;
       case 'warning':
         if (warning === 0) return '';
-        startAngle = (healthy / total) * 360;
-        endAngle = startAngle + (warning / total) * 360;
+        startAngle = -90 + (healthy / total) * 360;
+        angleRange = (warning / total) * 360;
+        endAngle = startAngle + angleRange;
         break;
       case 'critical':
         if (critical === 0) return '';
-        startAngle = ((healthy + warning) / total) * 360;
-        endAngle = startAngle + (critical / total) * 360;
+        startAngle = -90 + ((healthy + warning) / total) * 360;
+        angleRange = (critical / total) * 360;
+        endAngle = startAngle + angleRange;
         break;
       case 'offline':
         if (offline === 0) return '';
-        startAngle = ((healthy + warning + critical) / total) * 360;
-        endAngle = startAngle + (offline / total) * 360;
+        startAngle = -90 + ((healthy + warning + critical) / total) * 360;
+        angleRange = (offline / total) * 360;
+        endAngle = startAngle + angleRange;
         break;
       default:
         return '';
     }
     
-    if (endAngle - startAngle <= 0) return '';
+    if (angleRange <= 0) return '';
     
-    const startAngleRad = (startAngle - 90) * Math.PI / 180;
-    const endAngleRad = (endAngle - 90) * Math.PI / 180;
+    // Handle full circle (360 degrees) - use two arcs
+    if (angleRange >= 360) {
+      // For full circle, draw two 180-degree arcs
+      const midAngle = startAngle + 180;
+      const startAngleRad = startAngle * Math.PI / 180;
+      const midAngleRad = midAngle * Math.PI / 180;
+      const endAngleRad = endAngle * Math.PI / 180;
+      
+      const x1 = centerX + radius * Math.cos(startAngleRad);
+      const y1 = centerY + radius * Math.sin(startAngleRad);
+      const x2 = centerX + radius * Math.cos(midAngleRad);
+      const y2 = centerY + radius * Math.sin(midAngleRad);
+      const x3 = centerX + radius * Math.cos(endAngleRad);
+      const y3 = centerY + radius * Math.sin(endAngleRad);
+      
+      const x4 = centerX + innerRadius * Math.cos(endAngleRad);
+      const y4 = centerY + innerRadius * Math.sin(endAngleRad);
+      const x5 = centerX + innerRadius * Math.cos(midAngleRad);
+      const y5 = centerY + innerRadius * Math.sin(midAngleRad);
+      const x6 = centerX + innerRadius * Math.cos(startAngleRad);
+      const y6 = centerY + innerRadius * Math.sin(startAngleRad);
+      
+      return `M ${x1} ${y1} A ${radius} ${radius} 0 1 1 ${x2} ${y2} A ${radius} ${radius} 0 1 1 ${x3} ${y3} L ${x4} ${y4} A ${innerRadius} ${innerRadius} 0 1 0 ${x5} ${y5} A ${innerRadius} ${innerRadius} 0 1 0 ${x6} ${y6} Z`;
+    }
+    
+    const startAngleRad = startAngle * Math.PI / 180;
+    const endAngleRad = endAngle * Math.PI / 180;
     
     const x1 = centerX + radius * Math.cos(startAngleRad);
     const y1 = centerY + radius * Math.sin(startAngleRad);
@@ -487,7 +529,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     const x4 = centerX + innerRadius * Math.cos(startAngleRad);
     const y4 = centerY + innerRadius * Math.sin(startAngleRad);
     
-    const largeArc = (endAngle - startAngle) > 180 ? 1 : 0;
+    const largeArc = angleRange > 180 ? 1 : 0;
     
     return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x4} ${y4} Z`;
   }
